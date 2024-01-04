@@ -1,5 +1,7 @@
 import csv
 import tkinter as tk
+import random
+import string
 from tkinter import Toplevel, filedialog
 from tkinter import messagebox
 from cryptography.fernet import Fernet
@@ -14,7 +16,11 @@ def center_window(top):
 class PasswordManager:
     def __init__(self):
         self.passwords = {}
-        self.key = Fernet.generate_key()
+        # !! This is a demo key, do not use it in production.   !!
+        # !! Generate a new key with Fernet.generate_key()      !!
+        # !! and store it securely, this is just a github       !!
+        # !! project, so I don't care about security.           !!
+        self.key = b'9QZ9-PBjPZ6yHhoH5oZGJvj1jUJkEVOp1q5TrBbszKU='
         self.cipher_suite = Fernet(self.key)
         self.chooseFile()
 
@@ -29,6 +35,7 @@ class PasswordManager:
 
     def passEnc(self, password):
         return self.cipher_suite.encrypt(password.encode()).decode()
+
 
     def passDec(self, passHashed):
         return self.cipher_suite.decrypt(passHashed.encode()).decode()
@@ -83,6 +90,7 @@ class Application(tk.Frame):
 
         self.btnStore = tk.Button(self)
         self.btnStore["text"] = "Store Password"
+        self.btnStore["command"] = self.passStore
         self.btnStore["command"] = self.passStore
         self.btnStore.place(relx=0.5, rely=0.3, anchor='center')
 
@@ -153,8 +161,17 @@ class StorePasswordDialog:
         self.password_entry = tk.Entry(top, show="*")
         self.password_entry.pack()
 
+        tk.Button(top, text='Generate', command=self.passGen).pack()
+        tk.Label(top, text=" ").pack()
         tk.Button(top, text='OK', command=self.ok).pack()
 
+    def passGen(self):
+        purpose = self.purpose_entry.get()
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        self.password_manager.passStore(purpose, password)
+        messagebox.showinfo("Success", f"Password for {purpose} stored. Generated password is {password}")
+        self.top.destroy()
+    
     def ok(self):
         purpose = self.purpose_entry.get()
         password = self.password_entry.get()
