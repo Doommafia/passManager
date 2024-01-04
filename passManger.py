@@ -1,10 +1,18 @@
+# !TODO customtkinter
+# !TODO clean up code
+
 import csv
 import tkinter as tk
 import random
 import string
+import subprocess
 from tkinter import Toplevel, filedialog
 from tkinter import messagebox
 from cryptography.fernet import Fernet
+
+def copy2clip(txt):
+    cmd='echo '+txt.strip()+'|clip'
+    return subprocess.check_call(cmd, shell=True)
 
 def center_window(top):
     window_width = top.winfo_screenwidth()
@@ -199,7 +207,8 @@ class GetPasswordDialog:
         purpose = self.purposeVar.get()
         password = self.password_manager.passRet(purpose)
         if password:
-            messagebox.showinfo("Password", f"Password for {purpose} is {password}")
+            messagebox.showinfo("Password!", f"Password for {purpose} is {password}. Copied to clipboard!")
+            copy2clip(password)
         else:
             messagebox.showinfo("Error", f"No password stored for {purpose}")
         self.top.destroy()
